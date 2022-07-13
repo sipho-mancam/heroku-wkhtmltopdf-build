@@ -14,8 +14,7 @@ else
   DOWNLOAD_URL="https://github.com/wkhtmltopdf/wkhtmltopdf/releases/0.12.3/{wkhtmltox-0.12.3_linux-generic-amd64.tar.xz,SHA1SUMS}"
 fi
 
-PACKAGE=${DOWNLOAD_URL#*{}
-
+PACKAGE=${DOWNLOAD_URL##*{}
 if [ ${#PACKAGE} -eq ${#DOWNLOAD_URL} ]; then
   PACKAGE=${DOWNLOAD_URL##*/}
 else
@@ -24,43 +23,33 @@ else
   PACKAGE=${PACKAGE%,*}
 fi
 
-ROOT_PATH=${DOWNLOAD_URL%{*}
-
 download="curl -sLO"
-extract="tar -xvf"
+extract="tar x -C $CACHE_DIR -f"
 install=""
 verify="sha1sum --check --warn"
 
 mkdir -p $BUILD_DIR/bin
 
-DOWNLOAD_URL=$ROOT_PATH
-
-
 if [ ! -f "$CACHE_DIR/$PACKAGE" ]; then
   echo "downloading $DOWNLOAD_URL" | indent
-  $download $DOWNLOAD_URL > $CHACHE_DIR
- # $download $ROOT_PATH$PACKAGE_CHECKSUM  # it fails here because it can't split the string properly...
-  
-  
+  $download $DOWNLOAD_URL
+
   if [ -z "$PACKAGE_CHECKSUM" ]; then
-    $download $ROOT_PATH$PACKAGE_CHECKSUM
-    echo "I execute"
+    $download $DOWNLOAD_URL.sha1.txt
   elif [ $PACKAGE_CHECKSUM != $PACKAGE.sha1.txt ]; then
     grep $PACKAGE $PACKAGE_CHECKSUM > $PACKAGE.sha1.txt
   fi
 
-  #echo "verifying checksum" | indent
-  # $verify ${PACKAGE}.sha1.txt
-  	#$verify $PACKAGE_CHECKSUM
+  echo "verifying checksum" | indent
+  $verify ${PACKAGE}.sha1.txt
 
-  #if [ $? -eq 0 ]; then
-   # mv $PACKAGE $PACKAGE.sha1.txt $CACHE_DIR
-  #else
-  #  rm $PACKAGE $PACKAGE.sha1.txt
-   # exit 1
-  #fi
-	
+  if [ $? -eq 0 ]; then
+    mv $PACKAGE $PACKAGE.sha1.txt $CACHE_DIR
+  else
+    rm $PACKAGE $PACKAGE.sha1.txt
+    exit 1
+  fi
+
   $extract $CACHE_DIR/$PACKAGE
 fi
 
-cp $CACHE_DIR/wkhtmltox/bin/* $BUILD_DIR/bin/
