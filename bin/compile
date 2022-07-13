@@ -39,7 +39,7 @@ if [ ! -f "$CACHE_DIR/$PACKAGE" ]; then
   fi
 
   echo "verifying checksum" | indent
-  $verify ${PACKAGE}.sha1.txt
+#  $verify ${PACKAGE}.sha1.txt
 
   if [ $? -eq 0 ]; then
     mv $PACKAGE $PACKAGE.sha1.txt $CACHE_DIR
