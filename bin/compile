@@ -33,7 +33,7 @@ verify="sha1sum --check --warn"
 
 mkdir -p $BUILD_DIR/bin
 
-DOWNLOAD_URL=$ROOT_PATH$PACKAGE
+DOWNLOAD_URL=$ROOT_PATH
 
 
 if [ ! -f "$CACHE_DIR/$PACKAGE" ]; then
