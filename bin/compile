@@ -32,9 +32,8 @@ mkdir -p $BUILD_DIR/bin
 
 if [ ! -f "$CACHE_DIR/$PACKAGE" ]; then
   echo "downloading $DOWNLOAD_URL" | indent
-  res=$download $DOWNLOAD_URL
-	
-  echo $res
+  $download $DOWNLOAD_URL
+]
   
   $extract $CACHE_DIR/$PACKAGE
 fi
