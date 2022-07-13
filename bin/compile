@@ -27,7 +27,7 @@ fi
 ROOT_PATH=${DOWNLOAD_URL%{*}
 
 download="curl -sLO"
-extract="tar xvf -C $CACHE_DIR -f"
+extract="tar -xvf"
 install=""
 verify="sha1sum --check --warn"
 
@@ -38,7 +38,8 @@ DOWNLOAD_URL=$ROOT_PATH$PACKAGE
 
 if [ ! -f "$CACHE_DIR/$PACKAGE" ]; then
   echo "downloading $DOWNLOAD_URL" | indent
-  $download "$ROOT_PATH$PACKAGE" && $download $ROOT_PATH$PACKAGE_CHECKSUM  # it fails here because it can't split the string properly...
+  $download "$ROOT_PATH$PACKAGE"
+ # $download $ROOT_PATH$PACKAGE_CHECKSUM  # it fails here because it can't split the string properly...
   
   
   if [ -z "$PACKAGE_CHECKSUM" ]; then
