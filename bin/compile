@@ -1,3 +1,5 @@
+#!/bin/sh
+
 indent() {
   sed -u 's/^/       /'
 }
@@ -9,10 +11,11 @@ ENV_DIR=$3
 if [ -f "$ENV_DIR/WKHTMLTOPDF_URL" ]; then
   DOWNLOAD_URL=$(cat $ENV_DIR/WKHTMLTOPDF_URL)
 else
-  DOWNLOAD_URL="http://download.gna.org/wkhtmltopdf/0.12/0.12.3/{wkhtmltox-0.12.3_linux-generic-amd64.tar.xz,SHA1SUMS}"
+  DOWNLOAD_URL="https://github.com/wkhtmltopdf/wkhtmltopdf/releases/0.12.3/{wkhtmltox-0.12.3_linux-generic-amd64.tar.xz,SHA1SUMS}"
 fi
 
-PACKAGE=${DOWNLOAD_URL##*{}
+PACKAGE=${DOWNLOAD_URL#*{}
+
 if [ ${#PACKAGE} -eq ${#DOWNLOAD_URL} ]; then
   PACKAGE=${DOWNLOAD_URL##*/}
 else
@@ -21,33 +24,41 @@ else
   PACKAGE=${PACKAGE%,*}
 fi
 
+ROOT_PATH=${DOWNLOAD_URL%{*}
+
 download="curl -sLO"
-extract="tar x -C $CACHE_DIR -f"
+extract="tar xvf -C $CACHE_DIR -f"
 install=""
-verify="sha1sum --c --warn"
+verify="sha1sum --check --warn"
 
 mkdir -p $BUILD_DIR/bin
 
+DOWNLOAD_URL=$ROOT_PATH$PACKAGE
+
+
 if [ ! -f "$CACHE_DIR/$PACKAGE" ]; then
   echo "downloading $DOWNLOAD_URL" | indent
-  $download $DOWNLOAD_URL
-
+  $download "$ROOT_PATH$PACKAGE" && $download $ROOT_PATH$PACKAGE_CHECKSUM  # it fails here because it can't split the string properly...
+  
+  
   if [ -z "$PACKAGE_CHECKSUM" ]; then
-    $download $DOWNLOAD_URL.sha1.txt
+    $download $ROOT_PATH$PACKAGE_CHECKSUM
+    echo "I execute"
   elif [ $PACKAGE_CHECKSUM != $PACKAGE.sha1.txt ]; then
     grep $PACKAGE $PACKAGE_CHECKSUM > $PACKAGE.sha1.txt
   fi
 
-  echo "verifying checksum" | indent
-  $verify ${PACKAGE}.sha1.txt
+  #echo "verifying checksum" | indent
+  # $verify ${PACKAGE}.sha1.txt
+  	#$verify $PACKAGE_CHECKSUM
 
-  if [ $? -eq 0 ]; then
-    mv $PACKAGE $PACKAGE.sha1.txt $CACHE_DIR
-  else
-    rm $PACKAGE $PACKAGE.sha1.txt
-    exit 1
-  fi
-
+  #if [ $? -eq 0 ]; then
+   # mv $PACKAGE $PACKAGE.sha1.txt $CACHE_DIR
+  #else
+  #  rm $PACKAGE $PACKAGE.sha1.txt
+   # exit 1
+  #fi
+	
   $extract $CACHE_DIR/$PACKAGE
 fi
 
