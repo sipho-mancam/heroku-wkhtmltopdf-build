@@ -38,7 +38,7 @@ DOWNLOAD_URL=$ROOT_PATH
 
 if [ ! -f "$CACHE_DIR/$PACKAGE" ]; then
   echo "downloading $DOWNLOAD_URL" | indent
-  $download "$ROOT_PATH$PACKAGE"
+  $download "$DOWNLOAD_URL"
  # $download $ROOT_PATH$PACKAGE_CHECKSUM  # it fails here because it can't split the string properly...
   
   
